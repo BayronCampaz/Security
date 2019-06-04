@@ -2,14 +2,17 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.util.List;
 
-import sun.misc.BASE64Encoder;
 
 public class Signer {
 	
@@ -20,31 +23,21 @@ public class Signer {
 		signature = Signature.getInstance("SHA1WithRSA");		
 	}
 	
-	public String loadFile(String path) throws Exception {
-		String content = "";
-
-		BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-		String line = "";
-		while( ( line = reader.readLine()) != null) {
-		        content += "/n" + line;
-		        
-		    }
-		reader.close();
-		
-		return content;
+	public byte[] loadFile(String path) throws Exception {
+			
+		return  Files.readAllBytes(new File(path).toPath());
 	}
 	
-	public String sign(String content, PrivateKey privateKey) throws Exception {
+	public byte[] sign(byte[] content, PrivateKey privateKey) throws Exception {
 		
 		signature.initSign(privateKey);
-		signature.update(content.getBytes("UTF-8"));
+		signature.update(content);
 		byte[] signatureBytes = signature.sign();
-		String signatureString = new BASE64Encoder().encode(signatureBytes);
 		
-		return signatureString;
+		return signatureBytes;
 	}
 	
-	public void saveSignFile(String path, String content) throws Exception {
+	public void saveSignFile(String path, byte[] content) throws Exception {
 		
 	    File fileSign = new File(path);
 	    

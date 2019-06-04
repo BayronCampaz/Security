@@ -4,51 +4,34 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
+import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.security.spec.KeySpec;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.HashMap;
+import javafx.util.Pair;
 
 public class Generator {
 	
-	public static final String DIR = "C:/encryption";
-	public static final String PRIVATE_KEY_FILE = "C:/encryption/private.key";
-	public static final String PUBLIC_KEY_FILE = "C:/encrytion/public.key";
+	public static final String DIR = "data";
+	public static final String PRIVATE_KEY_FILE = "data/private";
+	public static final String PUBLIC_KEY_FILE = "data/public";
 	
 	private KeyPairGenerator keyPairGenerator;
-	private KeyStore keyStore;
-	private HashMap<String, HashMap<PrivateKey , PublicKey>>  ();
+	//private KeyStore keyStore;
+	private HashMap<String, Pair<PrivateKey, PublicKey>> keys;
 	
 	public Generator () throws Exception {
 		
 			keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-			keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keys = new HashMap<String, Pair<PrivateKey, PublicKey>>();
 			File dir = new File(DIR);
-			dir.mkdirs();
+			if(!dir.exists()) {
+				dir.mkdirs();
+			}
 			
 	}
 	
@@ -57,7 +40,8 @@ public class Generator {
 		keyPairGenerator.initialize(sizeKey);
 		KeyPair keys = keyPairGenerator.generateKeyPair();
 		
-	
+		Pair<PrivateKey, PublicKey> pair = new Pair<PrivateKey, PublicKey> (keys.getPrivate() , keys.getPublic());
+		this.keys.put(password, pair );
 		
 	    File privateKeyFile = new File(PRIVATE_KEY_FILE);
 	    File publicKeyFile = new File(PUBLIC_KEY_FILE);
@@ -78,7 +62,25 @@ public class Generator {
 		
 	}
 	
-	public String getPublicKey(String ) {
+	public PrivateKey getPrivateKey(String password) {
+		
+		return keys.get(password).getKey();
+	}
+	
+	public PublicKey getPublicKey(String password) {
+		
+		byte[] keyBytes;
+		try {
+			keyBytes = Files.readAllBytes(new File(PUBLIC_KEY_FILE).toPath());
+			X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			return kf.generatePublic(spec);
+			
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+			return null;
+		}
 		
 	}
 	

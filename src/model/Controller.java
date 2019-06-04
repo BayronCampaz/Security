@@ -1,7 +1,11 @@
 package model;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 public class Controller {
 
+	
 	private Generator generator;
 	private Checker checker;
 	private Signer signer;
@@ -23,8 +27,18 @@ public class Controller {
 	}
 	
 	public void signFile (String pathFile, String pathFileSigned, String password) throws Exception {
-		generator
-		String content = signer.loadFile(pathFile);
-		signer.sign(content, privateKey)
+		PrivateKey privateKey = generator.getPrivateKey(password);
+		byte[] content = signer.loadFile(pathFile);
+		byte[] contentSigned = signer.sign(content, privateKey);
+		signer.saveSignFile(pathFileSigned, contentSigned);	
+	}
+	
+	public boolean verifyFile (String pathFile, String pathFileSigned, String password) throws Exception {
+		PublicKey publicKey = generator.getPublicKey(password);
+		byte[] textPlain = checker.loadFile(pathFile);
+		
+		byte[] signatureString = checker.loadFile(pathFileSigned);
+		return checker.verify(textPlain, signatureString, publicKey);
+		
 	}
 }
