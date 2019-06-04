@@ -5,8 +5,6 @@
  */
 package view;
 
-import com.apple.dnssd.TXTRecord;
-
 import model.Controller;
 
 /**

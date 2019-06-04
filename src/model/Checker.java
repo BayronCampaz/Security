@@ -20,9 +20,7 @@ public class Checker {
 		signature = Signature.getInstance("SHA1WithRSA");		
 	}
 	
-	public byte[] loadFile(String path) throws Exception {
-		
-		
+	public byte[] loadFile(String path) throws Exception {	
 		return Files.readAllBytes(new File(path).toPath());
 	}
 	
